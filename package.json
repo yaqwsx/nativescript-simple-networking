@@ -1,0 +1,17 @@
+{
+  "name": "nativescript-simple-networking",
+  "version": "0.0.1",
+  "description": "UDP and TCP sockets for NativeScript",
+  "keywords": ["UDP", "TCP", "socket", "network"],
+  "author": "Jan Mrázek <email@honzamrazek.cz>",
+  "main": "index",
+  "nativescript": {
+    "platforms": {
+      "android": "2.4.0"
+    }
+  },
+  "devDependencies": {
+    "typescript": "^2.0.7",
+    "tns-platform-declarations": "^2.5.0"
+  }
+}
