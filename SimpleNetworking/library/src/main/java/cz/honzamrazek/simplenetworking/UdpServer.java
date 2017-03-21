@@ -16,9 +16,18 @@ public class UdpServer {
     private UdpListener mListener;
     private ExecutorService mExecutor;
     private DatagramSocket mSocket;
+    private byte[] mBuffer;
 
-    public UdpServer(final int port, UdpListener listener) {
+    public UdpServer(UdpListener listener) {
         mListener = listener;
+    }
+
+    public DatagramSocket getNativeSocket() {
+        return mSocket;
+    }
+
+    public void start(final int port) {
+        mBuffer = new byte[64 * 1024 * 1024];
         mExecutor = Executors.newFixedThreadPool(2);
         mExecutor.submit(new Runnable() {
             @Override
@@ -73,8 +82,7 @@ public class UdpServer {
             @Override
             public void run() {
                 try {
-                    byte[] buffer = new byte[8192];
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                    DatagramPacket packet = new DatagramPacket(mBuffer, mBuffer.length);
                     mSocket.receive(packet);
                     byte [] sub = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
                     String data = new String(sub);

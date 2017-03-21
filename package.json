@@ -2,16 +2,28 @@
   "name": "nativescript-simple-networking",
   "version": "0.0.1",
   "description": "UDP and TCP sockets for NativeScript",
-  "keywords": ["UDP", "TCP", "socket", "network"],
+  "keywords": [
+    "UDP",
+    "TCP",
+    "socket",
+    "network"
+  ],
   "author": "Jan Mrázek <email@honzamrazek.cz>",
-  "main": "index",
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "tsc && cp SimpleNetworking/library/build/outputs/aar/library-release.aar platforms/android/libs/SimpleNetworking.aar"
+  },
   "nativescript": {
     "platforms": {
       "android": "2.4.0"
     }
   },
   "devDependencies": {
-    "typescript": "^2.0.7",
-    "tns-platform-declarations": "^2.5.0"
+    "typescript": "^2.2.1"
+  },
+  "dependencies": {
+    "ip-address": "^5.8.6",
+    "tns-platform-declarations": "^2.5.0",
+    "util": "^0.10.3"
   }
 }
