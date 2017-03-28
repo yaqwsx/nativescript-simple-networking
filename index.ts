@@ -79,7 +79,7 @@ declare module cz {
 import {Address4} from "ip-address";
 
 export class UdpServer {
-    private server : cz.honzamrazek.simplenetworking.UdpServer;
+    private server: cz.honzamrazek.simplenetworking.UdpServer;
     public onPacket: {(sender: Address4, packet: string): void;};
     public onSetupError: {(message: string): void;};
     public onReceiveError: {(message: string): void;};
@@ -114,5 +114,15 @@ export class UdpServer {
 
     public stop(): void {
         this.server.stop();
+    }
+
+    public send(address: Address4, packet: string): void {
+        console.log("Send invoked");
+        this.server.send(java.net.InetAddress.getByName(address.address), packet);
+        console.log("Send done");
+    }
+
+    public getNativeSocket(): java.net.DatagramSocket {
+        return this.server.getNativeSocket();
     }
 }

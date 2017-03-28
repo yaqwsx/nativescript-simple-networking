@@ -1,5 +1,7 @@
 package cz.honzamrazek.simplenetworking;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -61,13 +63,16 @@ public class UdpServer {
     }
 
     public void send(final InetAddress address, final String message) {
+        Log.d("UDP", "Sending");
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 try {
+                    Log.d("UDP", "Address: " + address.getHostName());
+                    Log.d("UDP", "Port: " + mSocket.getLocalPort());
                     byte[] buffer = message.getBytes();
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
-                            address, mSocket.getPort());
+                            address, mSocket.getLocalPort());
                     mSocket.send(packet);
                 }
                 catch(IOException e) {
