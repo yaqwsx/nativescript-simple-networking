@@ -1,2 +1,4 @@
 *.js
-index.d.ts
+*.map
+index.*.d.ts
+node_modules

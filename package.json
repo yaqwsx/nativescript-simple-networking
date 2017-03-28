@@ -8,10 +8,28 @@
     "socket",
     "network"
   ],
-  "author": "Jan Mrázek <email@honzamrazek.cz>",
-  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yaqwsx/nativescript-simple-networking.git"
+  },
+  "author": {
+    "name": "Jan Mrázek",
+    "email": "email@honzamrazek.cz",
+    "url": "https://honzamrazek.cz"
+  },
+  "bugs": {
+      "url": "https://github.com/yaqwsx/nativescript-simple-networking/issues"
+  },
+  "license": {
+      "type": "MIT",
+      "url": "https://github.com/yaqwsx/nativescript-simple-networking/blob/master/LICENSE"
+  },
+  "homepage": "https://github.com/yaqwsx/nativescript-simple-networking",
+  "readmeFilename": "README.md",
+  "main": "index",
+  "typyings": "index.d.ts",
   "scripts": {
-    "prepublish": "tsc && cp SimpleNetworking/library/build/outputs/aar/library-release.aar platforms/android/libs/SimpleNetworking.aar"
+    "prepublish": "tsc"
   },
   "nativescript": {
     "platforms": {

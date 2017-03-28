@@ -82,15 +82,15 @@ export class UdpServer {
         var self = this;
         var listener = new cz.honzamrazek.simplenetworking.UdpListener({
             onPacket: (sender, packet) => {
-                if (self.onPacket != null)
+                if (self.onPacket !== null)
                     self.onPacket(new Address4(sender.getHostAddress()), packet);
             },
             onError: (id, message) => {
-                if (self.onError != null)
+                if (self.onError !== null)
                     self.onError(id, message);
             },
             onFinished: (id) => {
-                if (self.onFinished != null)
+                if (self.onFinished !== null)
                     self.onFinished(id);
             }
         });
@@ -131,15 +131,15 @@ export class TcpClient {
         var self = this;
         var listener = new cz.honzamrazek.simplenetworking.TcpClientListener({
             onData: (data) => {
-                if (self.onData != null)
+                if (self.onData !== null)
                     self.onData(data);
             },
             onError: (id, message) => {
-                if (self.onError != null)
+                if (self.onError !== null)
                     self.onError(id, message);
             },
             onFinished: (id) => {
-                if (self.onFinished != null)
+                if (self.onFinished !== null)
                     self.onFinished(id);
             }
         });
@@ -170,19 +170,19 @@ export class TcpServer {
         var self = this;
         var listener = new cz.honzamrazek.simplenetworking.TcpServerListener({
             onClient: (client) => {
-                if (self.onClient != null)
+                if (self.onClient !== null)
                     self.onClient(new Address4(client.getHostAddress()));
             },
             onData: (client, data) => {
-                if (self.onData != null)
+                if (self.onData !== null)
                     self.onData(new Address4(client.getHostAddress()), data);
             },
             onError: (id, client, message) => {
-                if (self.onError != null)
+                if (self.onError !== null)
                     self.onError(id, new Address4(client.getHostAddress()), message);
             },
             onFinished: (id) => {
-                if (self.onFinished != null)
+                if (self.onFinished !== null)
                     self.onFinished(id);
             }
         });
