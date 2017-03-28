@@ -126,3 +126,46 @@ export class UdpServer {
         return this.server.getNativeSocket();
     }
 }
+
+export class TcpClient {
+    private client: cz.honzamrazek.simplenetworking.TcpClient;
+    public onData: {(data: string): void;};
+    public onConnectError: {(message: string): void;};
+    public onReceiveError: {(message: string): void;};
+    public onSendError: {(messgae: string): void;};
+
+    constructor() {
+        var self = this;
+        var listener = new cz.honzamrazek.simplenetworking.TcpClientListener({
+            onData: (data) => {
+                if (self.onData != null)
+                    self.onData(data);
+            },
+            onConnectError: (message: string) => {
+                if (self.onConnectError != null)
+                    self.onConnectError(message);
+            },
+            onReceiveError: (message: string) => {
+                if (self.onReceiveError != null)
+                    self.onReceiveError(message);
+            },
+            onSendError: (message: string) => {
+                if (self.onSendError != null)
+                    self.onSendError(message);
+            }
+        });
+        this.client = new cz.honzamrazek.simplenetworking.TcpClient(listener);
+    }
+
+    public start(servername: string, port: number): void {
+        this.client.start(servername, port);
+    }
+
+    public stop(): void {
+        this.client.stop();
+    }
+
+    public send(data: string): void {
+        this.client.send(data);
+    }
+}

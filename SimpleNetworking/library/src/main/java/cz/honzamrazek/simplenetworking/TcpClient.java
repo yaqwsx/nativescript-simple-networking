@@ -59,6 +59,7 @@ public class TcpClient {
     }
 
     public void send(final String data) {
+        Log.d("TCPClient", "Sending " + data);
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
