@@ -56,7 +56,8 @@ public class UdpServer {
         return id;
     }
 
-    public void stop() {
+    public int stop() {
+        final int id = mId.getAndIncrement();
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -64,8 +65,10 @@ public class UdpServer {
                     return;
                 mSocket.close();
                 mSocket = null;
+                mListener.onFinished(id);
             }
         });
+        return id;
     }
 
     public int send(final InetAddress address, final String message) {

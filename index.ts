@@ -17,31 +17,29 @@ declare module cz {
             export class UdpServer {
                 constructor(listener: cz.honzamrazek.simplenetworking.UdpListener);
                 start?(port: number): number;
-                stop?(): void;
+                stop?(): number;
                 send?(address: java.net.InetAddress, packet: string): number;
                 getNativeSocket(): java.net.DatagramSocket;
             }
 
             interface ITcpClientListener {
                 onData(data: string): void;
-                onConnectError(message: string): void;
-                onReceiveError(message: string): void;
-                onSendError(messgae: string): void;
+                onFinished?(id: number): void;
+                onError?(id: number, message: string): void;
             }
 
             export class TcpClientListener {
                 constructor(implementation: ITcpClientListener);
                 onData(data: string): void;
-                onConnectError(message: string): void;
-                onReceiveError(message: string): void;
-                onSendError(messgae: string): void;
+                onFinished?(id: number): void;
+                onError?(id: number, message: string): void;
             }
 
             export class TcpClient {
                 constructor(listener: cz.honzamrazek.simplenetworking.TcpClientListener);
-                start(serverName: string, port: number): void;
-                stop(): void;
-                send(data: string): void;
+                start(serverName: string, port: number): number;
+                stop(): number;
+                send(data: string): number;
                 getNativeSocket(): java.net.Socket;
             }
 
@@ -101,25 +99,23 @@ export class UdpServer {
         this.server = new cz.honzamrazek.simplenetworking.UdpServer(listener);
     }
 
-    public start(port: number): void {
-        this.server.start(port);
+    public start(port: number): number {
+        return this.server.start(port);
     }
 
-    public stop(): void {
-        this.server.stop();
+    public stop(): number {
+        return this.server.stop();
     }
 
-    public send(address: Address4, packet: string): void;
-    public send(address: string, packet: string): void;
-    public send(address: any, packet: string): void {
+    public send(address: Address4, packet: string): number;
+    public send(address: string, packet: string): number;
+    public send(address: any, packet: string): number {
         var name: string;
         if (address && typeof address == "string")
             name = address;
         else
             name = address.address;
-        console.log("Send invoked");
-        this.server.send(java.net.InetAddress.getByName(name), packet);
-        console.log("Send done");
+        return this.server.send(java.net.InetAddress.getByName(name), packet);
     }
 
     public getNativeSocket(): java.net.DatagramSocket {
@@ -130,9 +126,8 @@ export class UdpServer {
 export class TcpClient {
     private client: cz.honzamrazek.simplenetworking.TcpClient;
     public onData: {(data: string): void;};
-    public onConnectError: {(message: string): void;};
-    public onReceiveError: {(message: string): void;};
-    public onSendError: {(messgae: string): void;};
+    public onError: {(id: number, message: string): void;};
+    public onFinished: {(id: number): void;};
 
     constructor() {
         var self = this;
@@ -141,31 +136,27 @@ export class TcpClient {
                 if (self.onData != null)
                     self.onData(data);
             },
-            onConnectError: (message: string) => {
-                if (self.onConnectError != null)
-                    self.onConnectError(message);
+            onError: (id: number, message: string) => {
+                if (self.onError != null)
+                    self.onError(id, message);
             },
-            onReceiveError: (message: string) => {
-                if (self.onReceiveError != null)
-                    self.onReceiveError(message);
-            },
-            onSendError: (message: string) => {
-                if (self.onSendError != null)
-                    self.onSendError(message);
+            onFinished: (id: number) => {
+                if (self.onFinished != null)
+                    self.onFinished(id);
             }
         });
         this.client = new cz.honzamrazek.simplenetworking.TcpClient(listener);
     }
 
-    public start(servername: string, port: number): void {
-        this.client.start(servername, port);
+    public start(servername: string, port: number): number {
+        return this.client.start(servername, port);
     }
 
-    public stop(): void {
-        this.client.stop();
+    public stop(): number {
+        return this.client.stop();
     }
 
-    public send(data: string): void {
-        this.client.send(data);
+    public send(data: string): number {
+        return this.client.send(data);
     }
 }

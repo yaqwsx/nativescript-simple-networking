@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TcpServer {
     private TcpServerListener mListener;
@@ -16,6 +17,7 @@ public class TcpServer {
     private ServerSocket mServer;
     private int mMaxClients;
     private AtomicBoolean mIsAccepting;
+    private AtomicInteger mId;
 
     public TcpServer(int maxClients, TcpServerListener listener) {
         mMaxClients = maxClients;
@@ -33,40 +35,48 @@ public class TcpServer {
         return mClients.get(c);
     }
 
-    public void start(final int port) {
+    public int start(final int port) {
+        final int id = mId.getAndIncrement();
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 try {
                     mServer = new ServerSocket(port);
+                    mListener.onFinished(id);
                 } catch (IOException e) {
-                    mListener.onConnectError(e.getMessage());
+                    mListener.onError(id, null, e.getMessage());
                 }
                 accept();
             }
         });
+        return id;
     }
 
-    public void stop() {
+    public int stop() {
+        int id = mId.getAndIncrement();
         try {
             mServer.close();
             for (TcpClient c : mClients.values()) {
                 c.stop();
             }
+            mListener.onFinished(id);
         } catch (IOException e) {
-            mListener.onConnectError(e.getMessage());
+            mListener.onError(id, null, e.getMessage());
         }
+        return id;
     }
 
-    public void send(final InetAddress client, final String data) {
+    public int send(final InetAddress client, final String data) {
         TcpClient c = mClients.get(client);
         if (c == null) {
-            mListener.onSendError(client, "No such client");
+            int id = mId.getAndIncrement();
+            mListener.onError(id, client, "No such client");
         }
-        c.send(data);
+        return c.send(data);
     }
 
     private void accept() {
+        final int id = mId.getAndIncrement();
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -76,29 +86,26 @@ public class TcpServer {
                 try {
                     Socket s = mServer.accept();
                     final InetAddress address = s.getInetAddress();
-                    TcpClient c = new TcpClient(s, new TcpClientListener() {
+                    TcpClient c = new TcpClient(s, mId, new TcpClientListener() {
                         @Override
                         public void onData(String data) {
                             mListener.onData(address, data);
                         }
 
                         @Override
-                        public void onConnectError(String message) { }
-
-                        @Override
-                        public void onReceiveError(String message) {
-                            mListener.onReceiveError(address, message);
+                        public void onError(int id, String message) {
+                            mListener.onError(id, address, message);
                         }
 
                         @Override
-                        public void onSendError(String message) {
-                            mListener.onSendError(address, message);
+                        public void onFinished(int id) {
+                            mListener.onFinished(id);
                         }
                     });
                     mClients.put(s.getInetAddress(), c);
                     mListener.onClient(s.getInetAddress());
                 } catch (IOException e) {
-                    mListener.onConnectError(e.getMessage());
+                    mListener.onError(id, null, e.getMessage());
                 } finally {
                     mIsAccepting.set(false);
                 }
