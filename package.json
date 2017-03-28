@@ -6,7 +6,9 @@
     "UDP",
     "TCP",
     "socket",
-    "network"
+    "network",
+    "nativescript",
+    "javascript"
   ],
   "repository": {
     "type": "git",
