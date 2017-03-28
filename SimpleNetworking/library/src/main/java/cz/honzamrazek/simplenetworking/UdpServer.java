@@ -72,14 +72,11 @@ public class UdpServer {
     }
 
     public int send(final InetAddress address, final String message) {
-        Log.d("UDP", "Sending");
         final int id = mId.getAndIncrement();
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.d("UDP", "Address: " + address.getHostName());
-                    Log.d("UDP", "Port: " + mSocket.getLocalPort());
                     byte[] buffer = message.getBytes();
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
                             address, mSocket.getLocalPort());
