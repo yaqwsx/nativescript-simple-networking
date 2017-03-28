@@ -3,24 +3,22 @@ declare module cz {
         export module simplenetworking {
             interface IUdpListener {
                 onPacket?(sender: java.net.InetAddress, packet: string): void;
-                onSetupError?(message: string): void;
-                onReceiveError?(message: string): void;
-                onSendError?(message: string): void;
+                onFinished?(id: number): void;
+                onError?(id: number, message: string): void;
             }
 
             export class UdpListener {
                 constructor(implementation: IUdpListener);
                 onPacket?(sender: java.net.InetAddress, packet: string): void;
-                onSetupError?(message: string): void;
-                onReceiveError?(message: string): void;
-                onSendError?(message: string): void;
+                onFinished?(id: number): void;
+                onError?(id: number, message: string): void;
             }
 
             export class UdpServer {
                 constructor(listener: cz.honzamrazek.simplenetworking.UdpListener);
-                start?(port: number): void;
+                start?(port: number): number;
                 stop?(): void;
-                send?(address: java.net.InetAddress, packet: string): void;
+                send?(address: java.net.InetAddress, packet: string): number;
                 getNativeSocket(): java.net.DatagramSocket;
             }
 
@@ -81,9 +79,8 @@ import {Address4} from "ip-address";
 export class UdpServer {
     private server: cz.honzamrazek.simplenetworking.UdpServer;
     public onPacket: {(sender: Address4, packet: string): void;};
-    public onSetupError: {(message: string): void;};
-    public onReceiveError: {(message: string): void;};
-    public onSendError: {(message: string): void;};
+    public onError: {(id: number, message: string): void;};
+    public onFinished: {(id: number): void;};
 
     constructor() {
         var self = this;
@@ -92,17 +89,13 @@ export class UdpServer {
                 if (self.onPacket != null)
                     self.onPacket(new Address4(sender.getHostAddress()), packet);
             },
-            onSetupError: (message: string) => {
-                if (self.onSetupError != null)
-                    self.onSetupError(message);
+            onError: (id: number, message: string) => {
+                if (self.onError != null)
+                    self.onError(id, message);
             },
-            onReceiveError: (message: string) => {
-                if (self.onReceiveError != null)
-                    self.onReceiveError(message);
-            },
-            onSendError: (message: string) => {
-                if (self.onSendError != null)
-                    self.onSendError(message);
+            onFinished: (id: number) => {
+                if (self.onFinished != null)
+                    self.onFinished(id);
             }
         });
         this.server = new cz.honzamrazek.simplenetworking.UdpServer(listener);
@@ -116,9 +109,16 @@ export class UdpServer {
         this.server.stop();
     }
 
-    public send(address: Address4, packet: string): void {
+    public send(address: Address4, packet: string): void;
+    public send(address: string, packet: string): void;
+    public send(address: any, packet: string): void {
+        var name: string;
+        if (address && typeof address == "string")
+            name = address;
+        else
+            name = address.address;
         console.log("Send invoked");
-        this.server.send(java.net.InetAddress.getByName(address.address), packet);
+        this.server.send(java.net.InetAddress.getByName(name), packet);
         console.log("Send done");
     }
 

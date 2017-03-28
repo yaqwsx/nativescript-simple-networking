@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import cz.honzamrazek.simplenetworking.UdpListener;
 
@@ -18,17 +19,20 @@ public class UdpServer {
     private UdpListener mListener;
     private ExecutorService mExecutor;
     private DatagramSocket mSocket;
+    private AtomicInteger mId;
     private byte[] mBuffer;
 
     public UdpServer(UdpListener listener) {
         mListener = listener;
+        mId = new AtomicInteger();
     }
 
     public DatagramSocket getNativeSocket() {
         return mSocket;
     }
 
-    public void start(final int port) {
+    public int start(final int port) {
+        final int id = mId.getAndIncrement();
         mBuffer = new byte[64 * 1024 * 1024];
         mExecutor = Executors.newFixedThreadPool(2);
         mExecutor.submit(new Runnable() {
@@ -42,12 +46,14 @@ public class UdpServer {
                             receiveDatagram();
                         }
                     });
+                    mListener.onFinished(id);
                 }
                 catch(SocketException e) {
-                    mListener.onSetupError(e.getMessage());
+                    mListener.onError(id, e.getMessage());
                 }
             }
         });
+        return id;
     }
 
     public void stop() {
@@ -62,8 +68,9 @@ public class UdpServer {
         });
     }
 
-    public void send(final InetAddress address, final String message) {
+    public int send(final InetAddress address, final String message) {
         Log.d("UDP", "Sending");
+        final int id = mId.getAndIncrement();
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -74,15 +81,18 @@ public class UdpServer {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
                             address, mSocket.getLocalPort());
                     mSocket.send(packet);
+                    mListener.onFinished(id);
                 }
                 catch(IOException e) {
-                    mListener.onSendError(e.getMessage());
+                    mListener.onError(id, e.getMessage());
                 }
             }
         });
+        return id;
     }
 
     private void receiveDatagram() {
+        final int id = mId.getAndIncrement();
         mExecutor.submit(new Runnable() {
             @Override
             public void run() {
@@ -96,7 +106,7 @@ public class UdpServer {
                     receiveDatagram();
                 }
                 catch (IOException e) {
-                    mListener.onReceiveError(e.getMessage());
+                    mListener.onError(id, e.getMessage());
                 }
             }
         });

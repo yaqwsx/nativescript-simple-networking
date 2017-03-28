@@ -4,7 +4,6 @@ import java.net.InetAddress;
 
 public interface UdpListener {
     void onPacket(InetAddress sender, String data);
-    void onSetupError(String message);
-    void onReceiveError(String message);
-    void onSendError(String message);
+    void onFinished(int id);
+    void onError(int id, String message);
 }
