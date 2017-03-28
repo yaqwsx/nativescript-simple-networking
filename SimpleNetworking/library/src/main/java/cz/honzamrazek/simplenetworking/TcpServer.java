@@ -24,7 +24,8 @@ public class TcpServer {
         mListener = listener;
         mExecutor = Executors.newFixedThreadPool(maxClients + 2);
         mClients = new ConcurrentHashMap<>();
-        mIsAccepting.set(false);
+        mIsAccepting = new AtomicBoolean(false);
+        mId = new AtomicInteger();
     }
 
     ServerSocket getNativeSocket() {
