@@ -1,3 +1,4 @@
+/// <reference path="../tns-platform-declarations/android.d.ts" />
 declare module cz {
     export module honzamrazek {
         export module simplenetworking {
