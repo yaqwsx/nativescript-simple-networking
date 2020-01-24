@@ -82,8 +82,8 @@ tcpClient.send("I am also alive!");
 
 // When we are finished
 udpServer.stop();
-TcpServer.stop();
-TcpClient.stop();
+tcpServer.stop();
+tcpClient.stop();
 ```
 
 ## Contributing
